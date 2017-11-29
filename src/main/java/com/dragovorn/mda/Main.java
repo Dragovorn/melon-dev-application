@@ -11,8 +11,10 @@ public class Main extends JavaPlugin {
         instance = this;
 
         if (getDataFolder().mkdirs()) {
-            getLogger().info("Created data folder!");
+            getLogger().info("Created data folder!"); // Just some logging
         }
+
+        saveDefaultConfig(); // Of course we need to create our config file
     }
 
     @Override

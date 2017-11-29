@@ -3,3 +3,16 @@ main: com.dragovorn.mda.Main
 prefix: Application
 version: ${project.version}
 developers: [Dragovorn]
+commands:
+  lock:
+    description: Lock the container/door you are looking at
+    usage: /<command>
+  unlock:
+    description: Unlock the locked container/door you are looking at
+    usage: /<command>
+  lockhelp:
+    description: Display a neat little help page
+    usage: /<command>
+permissions:
+  lock.bypass:
+    default: op

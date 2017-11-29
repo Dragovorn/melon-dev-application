@@ -1,4 +1,4 @@
-storage: file # Provided storage methods: file (stored in a .json file), sql (stored in an SQL server)
+storage: file # Default storage methods: file (stored in a .json file), sql (stored in an SQL server)
 
 ################################################
 # ONLY USE IF YOU ARE USING SQL STORAGE METHOD #

@@ -1,11 +1,12 @@
 package com.dragovorn.mda.handler;
 
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class LockedContainerHandler {
+public class LockedContainerHandler implements Listener {
 
     @EventHandler
     public void checkInteraction(PlayerInteractEvent event) {

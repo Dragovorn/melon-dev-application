@@ -1,6 +1,6 @@
 name: ${project.build.finalName}
 main: com.dragovorn.mda.Main
-prefix: Application
+prefix: MDA
 version: ${project.version}
 developers: [Dragovorn]
 commands:

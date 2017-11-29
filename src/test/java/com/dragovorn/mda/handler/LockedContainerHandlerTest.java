@@ -1,6 +1,7 @@
 package com.dragovorn.mda.handler;
 
 import com.dragovorn.mda.Main;
+import com.dragovorn.mda.manager.FileLockManager;
 import com.dragovorn.mda.manager.ILockManager;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -20,10 +21,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({LockedContainerHandler.class, Main.class, PlayerInteractEvent.class, BlockBreakEvent.class})
+@PrepareForTest({FileLockManager.class, LockedContainerHandler.class, Main.class, PlayerInteractEvent.class, BlockBreakEvent.class})
 public class LockedContainerHandlerTest {
 
     private BlockState door;
@@ -32,6 +35,11 @@ public class LockedContainerHandlerTest {
     public void before() {
         this.door = mock(BlockState.class);
         when(this.door.getData()).thenReturn(mock(Door.class));
+    }
+
+    @Test
+    public void testNotChest() {
+        test(true, true, mock(BlockState.class), false);
     }
 
     @Test
@@ -78,7 +86,7 @@ public class LockedContainerHandlerTest {
         Player owner = mock(Player.class);
         when(owner.getName()).thenReturn("Owner");
 
-        ILockManager manager = mock(ILockManager.class);
+        ILockManager manager = mock(FileLockManager.class);
         when(manager.isLocked(any(Block.class))).thenReturn(locked);
         when(manager.getWhoLocked(any(Block.class))).thenReturn(owner);
 
@@ -91,16 +99,17 @@ public class LockedContainerHandlerTest {
         Player offender = mock(Player.class);
         when(offender.hasPermission(anyString())).thenReturn(hasPermission);
 
-        Block door = mock(Block.class);
-        when(door.getState()).thenReturn(state);
+        Block block = mock(Block.class);
+        when(block.getState()).thenReturn(state);
 
         PlayerInteractEvent interactEvent = mock(PlayerInteractEvent.class);
         when(interactEvent.getAction()).thenReturn(Action.RIGHT_CLICK_BLOCK);
         when(interactEvent.getPlayer()).thenReturn(offender);
-        when(interactEvent.getClickedBlock()).thenReturn(door);
+        when(interactEvent.getClickedBlock()).thenReturn(block);
 
         BlockBreakEvent breakEvent = mock(BlockBreakEvent.class);
         when(breakEvent.getPlayer()).thenReturn(offender);
+        when(breakEvent.getBlock()).thenReturn(block);
 
         LockedContainerHandler handler = new LockedContainerHandler();
         handler.checkInteraction(interactEvent);

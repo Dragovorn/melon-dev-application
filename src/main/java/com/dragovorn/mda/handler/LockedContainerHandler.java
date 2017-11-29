@@ -1,6 +1,7 @@
 package com.dragovorn.mda.handler;
 
 import com.dragovorn.mda.Main;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -19,7 +20,7 @@ public class LockedContainerHandler implements Listener {
             return; // Make sure a block is being interacted with
         }
 
-        if (!(event.getClickedBlock().getState() instanceof InventoryHolder || event.getClickedBlock().getState().getData() instanceof Openable)) { // Make sure a block that holds an inventory or is openable is being interacted with
+        if (!isLockable(event.getClickedBlock())) { // Make sure a block that holds an inventory or is openable is being interacted with
             return; // Make sure block either has an inventory or is an openable
         }
 
@@ -36,6 +37,10 @@ public class LockedContainerHandler implements Listener {
 
     @EventHandler
     public void checkBreak(BlockBreakEvent event) {
+        if (!isLockable(event.getBlock())) {
+            return;
+        }
+
         if (!Main.getInstance().getLockManager().isLocked(event.getBlock())) {
             return;
         }
@@ -45,6 +50,10 @@ public class LockedContainerHandler implements Listener {
         }
 
         isLocked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(event.getBlock()), event);
+    }
+
+    private boolean isLockable(Block block) {
+        return block.getState() instanceof InventoryHolder || block.getState().getData() instanceof Openable;
     }
 
     private void isLocked(Player offender, Player owner, Cancellable event) {

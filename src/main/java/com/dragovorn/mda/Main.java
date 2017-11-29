@@ -1,5 +1,6 @@
 package com.dragovorn.mda;
 
+import com.dragovorn.mda.command.LockExecutor;
 import com.dragovorn.mda.exception.MalformedLockType;
 import com.dragovorn.mda.exception.UnsupportedLockType;
 import com.dragovorn.mda.handler.LockedContainerHandler;
@@ -7,6 +8,7 @@ import com.dragovorn.mda.manager.FileLockManager;
 import com.dragovorn.mda.manager.ILockManager;
 import com.dragovorn.mda.manager.SQLLockManager;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -46,12 +48,22 @@ public class Main extends JavaPlugin {
 
         getLogger().info("Using lock type: " + this.lockManager.getName() + " v" + this.lockManager.getVersion() + " developed by: " + this.lockManager.getDeveloper());
 
+        registerCommand("lock", LockExecutor.class);
+
         registerListener(LockedContainerHandler.class);
     }
 
     private void registerListener(Class<? extends Listener> listener) { // Allows for simpler listener registration
         try {
             Bukkit.getPluginManager().registerEvents(listener.newInstance(), this);
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void registerCommand(String command, Class<? extends CommandExecutor> executor) { // Allows for simpler command registration
+        try {
+            getCommand(command).setExecutor(executor.newInstance());
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }

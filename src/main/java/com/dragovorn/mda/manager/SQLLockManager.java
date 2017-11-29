@@ -4,6 +4,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 public class SQLLockManager implements ILockManager {
+
     @Override
     public boolean lock(Block block) {
         return false;

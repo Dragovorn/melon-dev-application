@@ -27,12 +27,20 @@ public class LockedContainerHandler implements Listener {
             return;
         }
 
+        if (event.getPlayer().hasPermission("lock.bypass")) {
+            return;
+        }
+
         isLocked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(event.getClickedBlock()), event);
     }
 
     @EventHandler
     public void checkBreak(BlockBreakEvent event) {
         if (!Main.getInstance().getLockManager().isLocked(event.getBlock())) {
+            return;
+        }
+
+        if (event.getPlayer().hasPermission("lock.bypass")) {
             return;
         }
 

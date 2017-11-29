@@ -4,6 +4,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 public class FileLockManager implements ILockManager {
+
     @Override
     public boolean lock(Block block) {
         return false;

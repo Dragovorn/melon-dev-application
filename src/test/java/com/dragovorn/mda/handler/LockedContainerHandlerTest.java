@@ -7,6 +7,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.material.Door;
 import org.junit.Test;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({LockedContainerHandler.class, Main.class, PlayerInteractEvent.class})
+@PrepareForTest({LockedContainerHandler.class, Main.class, PlayerInteractEvent.class, BlockBreakEvent.class})
 public class LockedContainerHandlerTest {
 
     @Test
@@ -38,21 +39,26 @@ public class LockedContainerHandlerTest {
         mockStatic(Main.class);
         when(Main.getInstance()).thenReturn(main);
 
-        Player clicked = mock(Player.class);
+        Player offender = mock(Player.class);
 
         Block chest = mock(Block.class);
         when(chest.getState()).thenReturn(mock(Chest.class));
 
         PlayerInteractEvent interactEvent = mock(PlayerInteractEvent.class);
         when(interactEvent.getAction()).thenReturn(Action.RIGHT_CLICK_BLOCK);
-        when(interactEvent.getPlayer()).thenReturn(clicked);
+        when(interactEvent.getPlayer()).thenReturn(offender);
         when(interactEvent.getClickedBlock()).thenReturn(chest);
+
+        BlockBreakEvent breakEvent = mock(BlockBreakEvent.class);
+        when(breakEvent.getPlayer()).thenReturn(offender);
 
         LockedContainerHandler handler = new LockedContainerHandler();
         handler.checkInteraction(interactEvent);
+        handler.checkBreak(breakEvent);
 
-        verify(clicked, times(1)).sendMessage("This chest is locked by: Owner!");
+        verify(offender, times(2)).sendMessage("This chest is locked by: Owner!");
         verify(interactEvent, times(1)).setCancelled(true);
+        verify(breakEvent, times(1)).setCancelled(true);
     }
 
     @Test
@@ -70,7 +76,7 @@ public class LockedContainerHandlerTest {
         mockStatic(Main.class);
         when(Main.getInstance()).thenReturn(main);
 
-        Player clicked = mock(Player.class);
+        Player offender = mock(Player.class);
 
         BlockState state = mock(BlockState.class);
         when(state.getData()).thenReturn(mock(Door.class));
@@ -80,13 +86,18 @@ public class LockedContainerHandlerTest {
 
         PlayerInteractEvent interactEvent = mock(PlayerInteractEvent.class);
         when(interactEvent.getAction()).thenReturn(Action.RIGHT_CLICK_BLOCK);
-        when(interactEvent.getPlayer()).thenReturn(clicked);
+        when(interactEvent.getPlayer()).thenReturn(offender);
         when(interactEvent.getClickedBlock()).thenReturn(door);
+
+        BlockBreakEvent breakEvent = mock(BlockBreakEvent.class);
+        when(breakEvent.getPlayer()).thenReturn(offender);
 
         LockedContainerHandler handler = new LockedContainerHandler();
         handler.checkInteraction(interactEvent);
+        handler.checkBreak(breakEvent);
 
-        verify(clicked, times(1)).sendMessage("This chest is locked by: Owner!");
+        verify(offender, times(2)).sendMessage("This chest is locked by: Owner!");
         verify(interactEvent, times(1)).setCancelled(true);
+        verify(breakEvent, times(1)).setCancelled(true);
     }
 }

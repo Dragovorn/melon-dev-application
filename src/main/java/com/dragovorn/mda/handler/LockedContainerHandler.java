@@ -1,6 +1,7 @@
 package com.dragovorn.mda.handler;
 
 import com.dragovorn.mda.Main;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -52,11 +53,11 @@ public class LockedContainerHandler implements Listener {
         isLocked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(event.getBlock()), event);
     }
 
-    private boolean isLockable(Block block) {
+    public static boolean isLockable(Block block) {
         return block.getState() instanceof InventoryHolder || block.getState().getData() instanceof Openable;
     }
 
-    private void isLocked(Player offender, Player owner, Cancellable event) {
+    private void isLocked(Player offender, OfflinePlayer owner, Cancellable event) {
         offender.sendMessage("This chest is locked by: " + owner.getName() + "!");
         event.setCancelled(true);
     }

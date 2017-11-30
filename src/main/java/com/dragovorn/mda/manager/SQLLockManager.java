@@ -1,13 +1,14 @@
 package com.dragovorn.mda.manager;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 public class SQLLockManager implements ILockManager {
 
     @Override
-    public boolean lock(Block block) {
-        return false;
+    public void close() {
+
     }
 
     @Override
@@ -21,7 +22,12 @@ public class SQLLockManager implements ILockManager {
     }
 
     @Override
-    public Player getWhoLocked(Block block) {
+    public boolean lock(Player owner, Block block) {
+        return false;
+    }
+
+    @Override
+    public OfflinePlayer getWhoLocked(Block block) {
         return null;
     }
 

@@ -1,7 +1,6 @@
 package com.dragovorn.mda.handler;
 
 import com.dragovorn.mda.Main;
-import com.dragovorn.mda.manager.FileLockManager;
 import com.dragovorn.mda.manager.ILockManager;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -21,13 +20,11 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.*;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({FileLockManager.class, LockedContainerHandler.class, Main.class, PlayerInteractEvent.class, BlockBreakEvent.class})
-public class LockedContainerHandlerTest {
+@PrepareForTest({LockedContainerHandler.class, Main.class, PlayerInteractEvent.class, BlockBreakEvent.class})
+public class TestLockedContainerHandler {
 
     private BlockState door;
 
@@ -86,7 +83,7 @@ public class LockedContainerHandlerTest {
         Player owner = mock(Player.class);
         when(owner.getName()).thenReturn("Owner");
 
-        ILockManager manager = mock(FileLockManager.class);
+        ILockManager manager = mock(ILockManager.class);
         when(manager.isLocked(any(Block.class))).thenReturn(locked);
         when(manager.getWhoLocked(any(Block.class))).thenReturn(owner);
 

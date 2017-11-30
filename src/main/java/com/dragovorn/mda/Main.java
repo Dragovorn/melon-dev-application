@@ -53,6 +53,11 @@ public class Main extends JavaPlugin {
         registerListener(LockedContainerHandler.class);
     }
 
+    @Override
+    public void onDisable() {
+        this.lockManager.close();
+    }
+
     private void registerListener(Class<? extends Listener> listener) { // Allows for simpler listener registration
         try {
             Bukkit.getPluginManager().registerEvents(listener.newInstance(), this);

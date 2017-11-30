@@ -43,10 +43,20 @@ public class LockedContainerHandler implements Listener {
         }
 
         if (!Main.getInstance().getLockManager().isLocked(event.getBlock())) {
+            if (Main.getInstance().getLockManager().isLocked(event.getBlock())) {
+                Main.getInstance().getLockManager().unlock(event.getBlock());
+                event.getPlayer().sendMessage("You broke a locked block! It's been unlocked automatically!");
+            }
+
             return;
         }
 
         if (event.getPlayer().hasPermission("lock.bypass")) {
+            if (Main.getInstance().getLockManager().isLocked(event.getBlock())) {
+                Main.getInstance().getLockManager().unlock(event.getBlock());
+                event.getPlayer().sendMessage("You broke a locked block! It's been unlocked automatically!");
+            }
+
             return;
         }
 

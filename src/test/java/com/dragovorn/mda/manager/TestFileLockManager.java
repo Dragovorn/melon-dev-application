@@ -14,6 +14,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.Reader;
 import java.util.UUID;
 
@@ -105,6 +106,33 @@ public class TestFileLockManager {
         assertEquals("owner", this.manager.getWhoLocked(block).getName());
     }
 
+    @Test
+    public void testOldLock() {
+        initManager(true);
+
+        Block block = mock(Block.class);
+        when(block.getX()).thenReturn(0);
+        when(block.getY()).thenReturn(0);
+        when(block.getZ()).thenReturn(0);
+
+        assertEquals(true, this.manager.isLocked(block));
+    }
+
+    @Test
+    public void testOldRandomLockAlreadyLocked() {
+        initManager(true);
+
+        Player random = mock(Player.class);
+        when(random.getUniqueId()).thenReturn(UUID.randomUUID());
+
+        Block block = mock(Block.class);
+        when(block.getX()).thenReturn(0);
+        when(block.getY()).thenReturn(0);
+        when(block.getZ()).thenReturn(0);
+
+        assertEquals(false, this.manager.lock(random, block));
+    }
+
     private Block lockBlock(Player owner) {
         Block block = mock(Block.class);
         when(block.getX()).thenReturn(0);
@@ -119,6 +147,7 @@ public class TestFileLockManager {
     private void initManager(boolean exists) {
         suppress(method(FileLockManager.class, "save"));
         suppress(constructor(File.class, File.class, String.class));
+        suppress(constructor(FileReader.class, File.class));
 
         Main main = mock(Main.class);
         when(main.getDataFolder()).thenReturn(mock(File.class));
@@ -134,6 +163,7 @@ public class TestFileLockManager {
         object.addProperty("owner", "fa2daf04-02e9-4fe2-a70c-b38db29afc47");
 
         JsonArray array = new JsonArray();
+        array.add(object);
 
         Gson gson = mock(Gson.class);
         when(gson.fromJson(any(Reader.class), any())).thenReturn(array);

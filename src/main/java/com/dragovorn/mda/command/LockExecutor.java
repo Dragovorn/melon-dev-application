@@ -3,6 +3,7 @@ package com.dragovorn.mda.command;
 import com.dragovorn.mda.Main;
 import com.dragovorn.mda.handler.LockedContainerHandler;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -28,7 +29,13 @@ public class LockExecutor implements CommandExecutor {
             if (Main.getInstance().getLockManager().lock(player, block)) {
                 player.sendMessage("Successfully locked block!");
             } else {
-                player.sendMessage(Main.getInstance().getLockManager().getWhoLocked(block).getName() + " has already locked that block!");
+                OfflinePlayer owner = Main.getInstance().getLockManager().getWhoLocked(block);
+
+                if (owner.getUniqueId().equals(player.getUniqueId())) {
+                    player.sendMessage("You've already locked that block!");
+                } else {
+                    player.sendMessage(owner.getName() + " has already locked that block!");
+                }
             }
         } else {
             player.sendMessage("You cannot lock that block!");

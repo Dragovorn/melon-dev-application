@@ -32,7 +32,58 @@ public class TestFileLockManager {
     private FileLockManager manager;
 
     @Test
-    public void testLockNoFile() {
+    public void testNewLock() {
+        initManager(false);
+
+        UUID uuid = UUID.randomUUID();
+
+        Player owner = mock(Player.class);
+        when(owner.getUniqueId()).thenReturn(uuid);
+
+        assertEquals(true, this.manager.isLocked(lockBlock(owner)));
+    }
+
+    @Test
+    public void testNewRandomLockAlreadyLocked() {
+        initManager(false);
+
+        UUID uuid = UUID.randomUUID();
+
+        Player owner = mock(Player.class);
+        when(owner.getUniqueId()).thenReturn(uuid);
+
+        Player random = mock(Player.class);
+        when(random.getUniqueId()).thenReturn(UUID.randomUUID());
+
+        Block block = lockBlock(owner);
+
+        assertEquals(false, this.manager.lock(random, block));
+    }
+
+    @Test
+    public void testNewRandomLockNotLocked() {
+        initManager(false);
+
+        UUID uuid = UUID.randomUUID();
+
+        Player owner = mock(Player.class);
+        when(owner.getUniqueId()).thenReturn(uuid);
+
+        Player random = mock(Player.class);
+        when(random.getUniqueId()).thenReturn(UUID.randomUUID());
+
+        lockBlock(owner);
+
+        Block block = mock(Block.class);
+        when(block.getX()).thenReturn(0);
+        when(block.getY()).thenReturn(1);
+        when(block.getZ()).thenReturn(0);
+
+        assertEquals(true, this.manager.lock(owner, block));
+    }
+
+    @Test
+    public void testNewWhoLocked() {
         initManager(false);
 
         UUID uuid = UUID.randomUUID();
@@ -46,6 +97,15 @@ public class TestFileLockManager {
         Player owner = mock(Player.class);
         when(owner.getUniqueId()).thenReturn(uuid);
 
+        Player random = mock(Player.class);
+        when(random.getUniqueId()).thenReturn(UUID.randomUUID());
+
+        Block block = lockBlock(owner);
+
+        assertEquals("owner", this.manager.getWhoLocked(block).getName());
+    }
+
+    private Block lockBlock(Player owner) {
         Block block = mock(Block.class);
         when(block.getX()).thenReturn(0);
         when(block.getY()).thenReturn(0);
@@ -53,12 +113,7 @@ public class TestFileLockManager {
 
         this.manager.lock(owner, block);
 
-        Player random = mock(Player.class);
-        when(random.getUniqueId()).thenReturn(UUID.randomUUID());
-
-        assertEquals(true, this.manager.isLocked(block));
-        assertEquals(false, this.manager.lock(random, block));
-        assertEquals("owner", this.manager.getWhoLocked(block).getName());
+        return block;
     }
 
     private void initManager(boolean exists) {

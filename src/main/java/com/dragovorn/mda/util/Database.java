@@ -14,10 +14,7 @@ public class Database {
     }
 
     public Statement createStatement() throws SQLException {
-        Statement statement = this.connection.createStatement();
-        statement.closeOnCompletion();
-
-        return statement;
+        return this.connection.createStatement();
     }
 
     public void close() {

@@ -5,33 +5,24 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
-import static com.dragovorn.mda.util.KeyHelper.generateKey;
-import static org.bukkit.Bukkit.getOfflinePlayer;
+public class FileLockManager extends SimpleLockManager {
 
-public class FileLockManager implements ILockManager {
+    static final Gson GSON = new GsonBuilder().create();
 
-    private Map<String, UUID> data;
-
-    private static final Gson GSON = new GsonBuilder().create();
-
-    private static final File DATA = new File(Main.getInstance().getDataFolder(), "data.json");
+    static final File DATA = new File(Main.getInstance().getDataFolder(), "data.json");
 
     public FileLockManager() {
+        super();
         if (DATA.exists()) {
             try {
-                this.data = new HashMap<>();
                 JsonArray file = GSON.fromJson(new FileReader(DATA), JsonArray.class);
 
                 file.forEach(element -> {
@@ -70,42 +61,6 @@ public class FileLockManager implements ILockManager {
     @Override
     public void close() {
         save();
-    }
-
-    @Override
-    public boolean unlock(Block block) {
-        if (!isLocked(block)) {
-            return false;
-        }
-
-        this.data.remove(generateKey(block));
-
-        return true;
-    }
-
-    @Override
-    public boolean isLocked(Block block) {
-        return this.data.containsKey(generateKey(block));
-    }
-
-    @Override
-    public boolean lock(Player owner, Block block) {
-        if (isLocked(block)) {
-            return false;
-        }
-
-        this.data.put(generateKey(block), owner.getUniqueId());
-
-        return true;
-    }
-
-    @Override
-    public OfflinePlayer getWhoLocked(Block block) {
-        if (!isLocked(block)) {
-            return null;
-        }
-
-        return getOfflinePlayer(this.data.get(generateKey(block)));
     }
 
     @Override

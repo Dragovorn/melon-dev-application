@@ -42,6 +42,7 @@ public class LockedContainerHandler implements Listener {
             Block relativeBlock = getAdjacentLocked(block);
 
             if (relativeBlock != null) {
+                Main.getInstance().getLockManager().lock(event.getPlayer(), block);
                 locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(relativeBlock), event);
             }
 
@@ -63,6 +64,7 @@ public class LockedContainerHandler implements Listener {
             Block relativeBlock = getAdjacentLocked(block);
 
             if (relativeBlock != null) {
+                Main.getInstance().getLockManager().lock(event.getPlayer(), block);
                 locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(relativeBlock), event);
             }
 

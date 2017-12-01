@@ -1,5 +1,6 @@
 package com.dragovorn.mda;
 
+import com.dragovorn.mda.command.HelpExecutor;
 import com.dragovorn.mda.command.LockExecutor;
 import com.dragovorn.mda.exception.MalformedLockType;
 import com.dragovorn.mda.exception.UnsupportedLockType;
@@ -49,6 +50,7 @@ public class Main extends JavaPlugin {
         getLogger().info("Using lock type: " + this.lockManager.getName() + " v" + this.lockManager.getVersion() + " developed by: " + this.lockManager.getDeveloper());
 
         registerCommand("lock", LockExecutor.class);
+        registerCommand("lockhelp", HelpExecutor.class);
 
         registerListener(LockedContainerHandler.class);
     }

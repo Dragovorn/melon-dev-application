@@ -131,11 +131,11 @@ public class TestLockedContainerHandler {
         handler.checkBreak(breakEvent);
 
         if (!allowed) {
-            verify(offender, times(2)).sendMessage("This block is locked by: Owner!");
+            verify(offender, times(2)).sendMessage("§cThis block is locked by: §eOwner§c!");
             verify(interactEvent, times(1)).setCancelled(true);
             verify(breakEvent, times(1)).setCancelled(true);
         } else {
-            verify(offender, times(0)).sendMessage("This block is locked by: Owner!");
+            verify(offender, times(0)).sendMessage("§cThis block is locked by: §eOwner§c!");
             verify(interactEvent, times(0)).setCancelled(true);
             verify(breakEvent, times(0)).setCancelled(true);
         }

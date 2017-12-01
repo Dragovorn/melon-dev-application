@@ -19,10 +19,12 @@ import org.bukkit.material.Openable;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.dragovorn.mda.helper.ChatHelper.colourize;
+
 public class LockedContainerHandler implements Listener {
 
-    private List<BlockFace> chestFaces = Arrays.asList(BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST, BlockFace.WEST);
-    private List<BlockFace> doorFaces = Arrays.asList(BlockFace.DOWN, BlockFace.UP);
+    private static final List<BlockFace> CHEST_FACES = Arrays.asList(BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST, BlockFace.WEST);
+    private static final List<BlockFace> DOOR_FACES = Arrays.asList(BlockFace.DOWN, BlockFace.UP);
 
     @EventHandler
     public void checkInteraction(PlayerInteractEvent event) {
@@ -37,30 +39,10 @@ public class LockedContainerHandler implements Listener {
         }
 
         if (!Main.getInstance().getLockManager().isLocked(block)) {
-            if (block.getState() instanceof Chest) {
-                for (BlockFace face : this.chestFaces) {
-                    Block relativeBlock = block.getRelative(face);
+            Block relativeBlock = getAdjacentLocked(block);
 
-                    if (relativeBlock.getState() instanceof Chest) {
-                        if (Main.getInstance().getLockManager().isLocked(relativeBlock)) {
-                            locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(relativeBlock), event);
-                            return;
-                        }
-                    }
-                }
-            }
-
-            if (block.getState().getData() instanceof Door) {
-                for (BlockFace face : this.doorFaces) {
-                    Block relativeBlock = block.getRelative(face);
-
-                    if (relativeBlock.getState().getData() instanceof Door) {
-                        if (Main.getInstance().getLockManager().isLocked(relativeBlock)) {
-                            locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(relativeBlock), event);
-                            return;
-                        }
-                    }
-                }
+            if (relativeBlock != null) {
+                locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(relativeBlock), event);
             }
 
             return;
@@ -78,36 +60,42 @@ public class LockedContainerHandler implements Listener {
         }
 
         if (!Main.getInstance().getLockManager().isLocked(block)) {
-            if (block.getState() instanceof Chest) {
-                for (BlockFace face : this.chestFaces) {
-                    Block relativeBlock = block.getRelative(face);
+            Block relativeBlock = getAdjacentLocked(block);
 
-                    if (relativeBlock.getState() instanceof Chest) {
-                        if (Main.getInstance().getLockManager().isLocked(relativeBlock)) {
-                            locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(relativeBlock), event);
-                            return;
-                        }
-                    }
-                }
-            }
-
-            if (block.getState().getData() instanceof Door) {
-                for (BlockFace face : this.doorFaces) {
-                    Block relativeBlock = block.getRelative(face);
-
-                    if (relativeBlock.getState().getData() instanceof Door) {
-                        if (Main.getInstance().getLockManager().isLocked(relativeBlock)) {
-                            locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(relativeBlock), event);
-                            return;
-                        }
-                    }
-                }
+            if (relativeBlock != null) {
+                locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(relativeBlock), event);
             }
 
             return;
         }
 
         locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(block), event);
+    }
+
+    public static Block getAdjacentLocked(Block block) {
+        if (block.getState() instanceof Chest) {
+            for (BlockFace face : CHEST_FACES) {
+                Block relativeBlock = block.getRelative(face);
+
+                if (relativeBlock.getState() instanceof Chest) {
+                    if (Main.getInstance().getLockManager().isLocked(relativeBlock)) {
+                        return relativeBlock;
+                    }
+                }
+            }
+        } else if (block.getState().getData() instanceof Door) {
+            for (BlockFace face : DOOR_FACES) {
+                Block relativeBlock = block.getRelative(face);
+
+                if (relativeBlock.getState().getData() instanceof Door) {
+                    if (Main.getInstance().getLockManager().isLocked(relativeBlock)) {
+                        return relativeBlock;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     public static boolean isLockable(Block block) {
@@ -118,18 +106,18 @@ public class LockedContainerHandler implements Listener {
         if (event instanceof BlockBreakEvent) {
             if (offender.hasPermission("lock.bypass") || offender.getUniqueId().equals(owner.getUniqueId())) {
                 Main.getInstance().getLockManager().unlock(((BlockBreakEvent) event).getBlock());
-                offender.sendMessage("You broke a locked block! It's been unlocked automatically!");
+                offender.sendMessage(colourize("&aYou broke a locked block! It's been unlocked automatically!"));
 
                 return;
             }
         } else {
             if (offender.hasPermission("lock.bypass") || offender.getUniqueId().equals(owner.getUniqueId())) {
-                offender.sendMessage("Accessing locked block...");
+                offender.sendMessage(colourize("&aAccessing locked block..."));
                 return;
             }
         }
 
-        offender.sendMessage("This block is locked by: " + owner.getName() + "!");
+        offender.sendMessage(colourize("&cThis block is locked by: &e" + owner.getName() + "&c!"));
         event.setCancelled(true);
     }
 }

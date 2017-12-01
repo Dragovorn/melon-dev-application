@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.junit.Test;
@@ -75,10 +76,14 @@ public class TestFileLockManager {
 
         lockBlock(owner);
 
+        World world = mock(World.class);
+        when(world.getName()).thenReturn("world");
+
         Block block = mock(Block.class);
         when(block.getX()).thenReturn(0);
         when(block.getY()).thenReturn(1);
         when(block.getZ()).thenReturn(0);
+        when(block.getWorld()).thenReturn(world);
 
         assertEquals(true, this.manager.lock(owner, block));
     }
@@ -110,10 +115,14 @@ public class TestFileLockManager {
     public void testOldLock() {
         initManager(true);
 
+        World world = mock(World.class);
+        when(world.getName()).thenReturn("world");
+
         Block block = mock(Block.class);
         when(block.getX()).thenReturn(0);
         when(block.getY()).thenReturn(0);
         when(block.getZ()).thenReturn(0);
+        when(block.getWorld()).thenReturn(world);
 
         assertEquals(true, this.manager.isLocked(block));
     }
@@ -125,19 +134,27 @@ public class TestFileLockManager {
         Player random = mock(Player.class);
         when(random.getUniqueId()).thenReturn(UUID.randomUUID());
 
+        World world = mock(World.class);
+        when(world.getName()).thenReturn("world");
+
         Block block = mock(Block.class);
         when(block.getX()).thenReturn(0);
         when(block.getY()).thenReturn(0);
         when(block.getZ()).thenReturn(0);
+        when(block.getWorld()).thenReturn(world);
 
         assertEquals(false, this.manager.lock(random, block));
     }
 
     private Block lockBlock(Player owner) {
+        World world = mock(World.class);
+        when(world.getName()).thenReturn("world");
+
         Block block = mock(Block.class);
         when(block.getX()).thenReturn(0);
         when(block.getY()).thenReturn(0);
         when(block.getZ()).thenReturn(0);
+        when(block.getWorld()).thenReturn(world);
 
         this.manager.lock(owner, block);
 
@@ -159,7 +176,7 @@ public class TestFileLockManager {
         when(file.exists()).thenReturn(exists);
 
         JsonObject object = new JsonObject();
-        object.addProperty("key", "000");
+        object.addProperty("key", "world000");
         object.addProperty("owner", "fa2daf04-02e9-4fe2-a70c-b38db29afc47");
 
         JsonArray array = new JsonArray();

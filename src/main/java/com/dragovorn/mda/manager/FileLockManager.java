@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -17,6 +16,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import static com.dragovorn.mda.helper.KeyHelper.generateKey;
+import static org.bukkit.Bukkit.getOfflinePlayer;
 
 public class FileLockManager implements ILockManager {
 
@@ -65,10 +67,6 @@ public class FileLockManager implements ILockManager {
         }
     }
 
-    private String generateKey(Block block) {
-        return String.valueOf(block.getX()) + String.valueOf(block.getY()) + String.valueOf(block.getZ());
-    }
-
     @Override
     public void close() {
         save();
@@ -107,7 +105,7 @@ public class FileLockManager implements ILockManager {
             return null;
         }
 
-        return Bukkit.getOfflinePlayer(this.data.get(generateKey(block)));
+        return getOfflinePlayer(this.data.get(generateKey(block)));
     }
 
     @Override

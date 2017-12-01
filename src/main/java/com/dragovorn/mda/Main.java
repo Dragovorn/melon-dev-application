@@ -2,6 +2,7 @@ package com.dragovorn.mda;
 
 import com.dragovorn.mda.command.HelpExecutor;
 import com.dragovorn.mda.command.LockExecutor;
+import com.dragovorn.mda.command.UnlockExecutor;
 import com.dragovorn.mda.exception.MalformedLockType;
 import com.dragovorn.mda.exception.UnsupportedLockType;
 import com.dragovorn.mda.handler.LockedContainerHandler;
@@ -51,6 +52,7 @@ public class Main extends JavaPlugin {
 
         registerCommand("lock", LockExecutor.class);
         registerCommand("lockhelp", HelpExecutor.class);
+        registerCommand("unlock", UnlockExecutor.class);
 
         registerListener(LockedContainerHandler.class);
     }

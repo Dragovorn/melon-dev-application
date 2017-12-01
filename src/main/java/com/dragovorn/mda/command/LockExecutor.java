@@ -1,7 +1,6 @@
 package com.dragovorn.mda.command;
 
 import com.dragovorn.mda.Main;
-import com.dragovorn.mda.handler.LockedContainerHandler;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
@@ -11,6 +10,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Set;
+
+import static com.dragovorn.mda.handler.LockedContainerHandler.getAdjacentLocked;
+import static com.dragovorn.mda.handler.LockedContainerHandler.isLockable;
+import static com.dragovorn.mda.helper.ChatHelper.colourize;
 
 public class LockExecutor implements CommandExecutor {
 
@@ -23,22 +26,28 @@ public class LockExecutor implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        Block block = player.getTargetBlock((Set<Material>) null, 5);
+        Block target = player.getTargetBlock((Set<Material>) null, 5);
 
-        if (LockedContainerHandler.isLockable(block)) {
-            if (Main.getInstance().getLockManager().lock(player, block)) {
-                player.sendMessage("Successfully locked block!");
+        if (isLockable(target)) {
+            Block lock = getAdjacentLocked(target);
+
+            if (lock == null) {
+                lock = target;
+            }
+
+            if (Main.getInstance().getLockManager().lock(player, lock)) {
+                player.sendMessage(colourize("&aSuccessfully locked block!"));
             } else {
-                OfflinePlayer owner = Main.getInstance().getLockManager().getWhoLocked(block);
+                OfflinePlayer owner = Main.getInstance().getLockManager().getWhoLocked(lock);
 
                 if (owner.getUniqueId().equals(player.getUniqueId())) {
-                    player.sendMessage("You've already locked that block!");
+                    player.sendMessage(colourize("&cYou've already locked that block!"));
                 } else {
-                    player.sendMessage(owner.getName() + " has already locked that block!");
+                    player.sendMessage(colourize("&e" + owner.getName() + " &chas already locked that block!"));
                 }
             }
         } else {
-            player.sendMessage("You cannot lock that block!");
+            player.sendMessage(colourize("&cYou cannot lock that block!"));
         }
 
         return true;

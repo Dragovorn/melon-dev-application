@@ -2,7 +2,9 @@ package com.dragovorn.mda.handler;
 
 import com.dragovorn.mda.Main;
 import com.dragovorn.mda.manager.ILockManager;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -15,6 +17,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.UUID;
+import java.util.logging.Logger;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -80,8 +85,11 @@ public class TestLockedContainerHandler {
     }
 
     private void test(boolean locked, boolean allowed, BlockState state, boolean hasPermission) {
-        Player owner = mock(Player.class);
+        UUID uuid = UUID.randomUUID();
+
+        OfflinePlayer owner = mock(OfflinePlayer.class);
         when(owner.getName()).thenReturn("Owner");
+        when(owner.getUniqueId()).thenReturn(uuid);
 
         ILockManager manager = mock(ILockManager.class);
         when(manager.isLocked(any(Block.class))).thenReturn(locked);
@@ -89,15 +97,25 @@ public class TestLockedContainerHandler {
 
         Main main = mock(Main.class);
         when(main.getLockManager()).thenReturn(manager);
+        when(main.getLogger()).thenReturn(mock(Logger.class));
 
         mockStatic(Main.class);
         when(Main.getInstance()).thenReturn(main);
 
+        if (!allowed) {
+            uuid = UUID.randomUUID();
+        }
+
         Player offender = mock(Player.class);
         when(offender.hasPermission(anyString())).thenReturn(hasPermission);
+        when(offender.getUniqueId()).thenReturn(uuid);
+
+        Block relative = mock(Block.class);
+        when(relative.getState()).thenReturn(state);
 
         Block block = mock(Block.class);
         when(block.getState()).thenReturn(state);
+        when(block.getRelative(any(BlockFace.class))).thenReturn(relative);
 
         PlayerInteractEvent interactEvent = mock(PlayerInteractEvent.class);
         when(interactEvent.getAction()).thenReturn(Action.RIGHT_CLICK_BLOCK);
@@ -113,11 +131,11 @@ public class TestLockedContainerHandler {
         handler.checkBreak(breakEvent);
 
         if (!allowed) {
-            verify(offender, times(2)).sendMessage("This chest is locked by: Owner!");
+            verify(offender, times(2)).sendMessage("This block is locked by: Owner!");
             verify(interactEvent, times(1)).setCancelled(true);
             verify(breakEvent, times(1)).setCancelled(true);
         } else {
-            verify(offender, times(0)).sendMessage("This chest is locked by: Owner!");
+            verify(offender, times(0)).sendMessage("This block is locked by: Owner!");
             verify(interactEvent, times(0)).setCancelled(true);
             verify(breakEvent, times(0)).setCancelled(true);
         }

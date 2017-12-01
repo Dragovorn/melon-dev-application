@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.dragovorn.mda.helper.KeyHelper.generateKey;
+import static com.dragovorn.mda.util.KeyHelper.generateKey;
 import static org.bukkit.Bukkit.getOfflinePlayer;
 
 public class FileLockManager implements ILockManager {

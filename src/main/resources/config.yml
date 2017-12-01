@@ -3,3 +3,8 @@ storage: file # Default storage methods: file (stored in a .json file), sql (sto
 ################################################
 # ONLY USE IF YOU ARE USING SQL STORAGE METHOD #
 ################################################
+ip: localhost
+port: 8080
+database: locks
+username: root
+password: root

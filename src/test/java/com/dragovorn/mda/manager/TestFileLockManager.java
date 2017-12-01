@@ -176,7 +176,7 @@ public class TestFileLockManager {
         when(file.exists()).thenReturn(exists);
 
         JsonObject object = new JsonObject();
-        object.addProperty("key", "world000");
+        object.addProperty("key", "world,0,0,0");
         object.addProperty("owner", "fa2daf04-02e9-4fe2-a70c-b38db29afc47");
 
         JsonArray array = new JsonArray();

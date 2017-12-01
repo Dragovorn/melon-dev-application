@@ -13,7 +13,7 @@ import java.util.Set;
 
 import static com.dragovorn.mda.handler.LockedContainerHandler.getAdjacentLocked;
 import static com.dragovorn.mda.handler.LockedContainerHandler.isLockable;
-import static com.dragovorn.mda.helper.ChatHelper.colourize;
+import static com.dragovorn.mda.util.ChatHelper.colourize;
 
 public class LockExecutor implements CommandExecutor {
 

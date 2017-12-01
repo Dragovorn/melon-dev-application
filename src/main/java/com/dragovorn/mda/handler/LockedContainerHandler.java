@@ -19,7 +19,7 @@ import org.bukkit.material.Openable;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.dragovorn.mda.helper.ChatHelper.colourize;
+import static com.dragovorn.mda.util.ChatHelper.colourize;
 
 public class LockedContainerHandler implements Listener {
 

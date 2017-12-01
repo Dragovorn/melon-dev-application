@@ -1,8 +1,8 @@
 package com.dragovorn.mda.command;
 
 import com.dragovorn.mda.Main;
-import com.dragovorn.mda.handler.LockedContainerHandler;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -11,7 +11,9 @@ import org.bukkit.entity.Player;
 
 import java.util.Set;
 
-import static com.dragovorn.mda.helper.ChatHelper.colourize;
+import static com.dragovorn.mda.handler.LockedContainerHandler.getAdjacentLocked;
+import static com.dragovorn.mda.handler.LockedContainerHandler.isLockable;
+import static com.dragovorn.mda.util.ChatHelper.colourize;
 
 public class UnlockExecutor implements CommandExecutor {
 
@@ -26,20 +28,36 @@ public class UnlockExecutor implements CommandExecutor {
 
         Block target = player.getTargetBlock((Set<Material>) null, 5);
 
-        if (LockedContainerHandler.isLockable(target)) {
-            Block unlock = LockedContainerHandler.getAdjacentLocked(target);
+        if (isLockable(target)) {
+            Block block = getAdjacentLocked(target);
 
-            if (unlock == null) {
-                unlock = target;
+            if (block == null) {
+                block = target;
             }
 
-            if (Main.getInstance().getLockManager().unlock(unlock)) {
-                player.sendMessage(colourize("&aYou unlocked this block"));
+            OfflinePlayer owner = Main.getInstance().getLockManager().getWhoLocked(block);
+
+            if (owner.getUniqueId().equals(player.getUniqueId())) {
+                unlock(block, player);
             } else {
-                player.sendMessage(colourize("&cYou cannot unlock this block, as it is locked by: &a" + Main.getInstance().getLockManager().getWhoLocked(unlock).getName()));
+                if (player.hasPermission("lock.bypass")) {
+                    unlock(block, player);
+                } else {
+                    player.sendMessage(colourize("&cYou cannot unlock that block because it's owner is: &e" + owner.getName()));
+                }
             }
+        } else {
+            player.sendMessage(colourize("&cYou cannot unlock that block!"));
         }
 
         return true;
+    }
+
+    private void unlock(Block block, Player player) {
+        if (Main.getInstance().getLockManager().unlock(block)) {
+            player.sendMessage(colourize("&aYou unlocked this block!"));
+        } else {
+            player.sendMessage(colourize("&cThat block isn't locked!"));
+        }
     }
 }

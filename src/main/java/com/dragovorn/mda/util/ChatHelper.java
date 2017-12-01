@@ -1,4 +1,4 @@
-package com.dragovorn.mda.helper;
+package com.dragovorn.mda.util;
 
 import org.bukkit.ChatColor;
 

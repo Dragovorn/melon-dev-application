@@ -11,6 +11,10 @@ import java.util.UUID;
 import static com.dragovorn.mda.util.GeneralHelpers.generateKey;
 import static org.bukkit.Bukkit.getOfflinePlayer;
 
+/**
+ * Allows for simple creations of {@link ILockManager}
+ * is backed by a {@link Map} for runtime data storage
+ */
 public abstract class SimpleLockManager implements ILockManager {
 
     protected Map<String, UUID> data;

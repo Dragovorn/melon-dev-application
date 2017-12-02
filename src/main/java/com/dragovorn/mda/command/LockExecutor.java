@@ -16,25 +16,30 @@ import static com.dragovorn.mda.util.GeneralHelpers.*;
 public class LockExecutor implements CommandExecutor {
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String s, String[] strings) {
-        if (!(sender instanceof Player)) {
+    public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+        if (!(sender instanceof Player)) { // Player only command
             sender.sendMessage("Only players can use this command!");
             return true;
         }
 
+        // Variables for my sanity
         Player player = (Player) sender;
 
         Block target = player.getTargetBlock((Set<Material>) null, 5);
 
-        if (isLockable(target)) {
+        if (isLockable(target)) { // Make sure our target can be locked
+            // Get adjacent blocks, used for pre-existing double chests or doors
             Block extra = getAdjacent(target, false);
 
+            // Attempt to lock
             if (Main.getInstance().getLockManager().lock(player, target)) {
+                // Lock extra blocks (for doors & pre-existing double chests)
                 if (extra != null) {
                     Main.getInstance().getLockManager().lock(player, extra);
                 }
                 player.sendMessage(colourize("&aSuccessfully locked block!"));
             } else {
+                // Get owner of the lock
                 OfflinePlayer owner = Main.getInstance().getLockManager().getWhoLocked(target);
 
                 if (owner.getUniqueId().equals(player.getUniqueId())) {

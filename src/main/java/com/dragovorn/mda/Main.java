@@ -34,14 +34,14 @@ public class Main extends JavaPlugin {
             getLogger().info("Created data folder!"); // Just some logging
         }
 
-        this.lockManagerTypes.put("file", FileLockManager.class);
-        this.lockManagerTypes.put("sql", SQLLockManager.class);
-
         saveDefaultConfig(); // Of course we need to create our config file
     }
 
     @Override
     public void onEnable() {
+        this.lockManagerTypes.put("file", FileLockManager.class);
+        this.lockManagerTypes.put("sql", SQLLockManager.class);
+
         try {
             this.lockManager = setLockManager();
         } catch (UnsupportedLockType unsupportedLockType) {
@@ -50,16 +50,18 @@ public class Main extends JavaPlugin {
 
         getLogger().info("Using lock type: " + this.lockManager.getName() + " v" + this.lockManager.getVersion() + " developed by: " + this.lockManager.getDeveloper());
 
+        // Register our commands
         registerCommand("lock", LockExecutor.class);
         registerCommand("lockhelp", HelpExecutor.class);
         registerCommand("unlock", UnlockExecutor.class);
 
+        // Register our listener
         registerListener(LockedContainerHandler.class);
     }
 
     @Override
     public void onDisable() {
-        this.lockManager.close();
+        this.lockManager.close(); // Make sure everything gets updated
     }
 
     private void registerListener(Class<? extends Listener> listener) { // Allows for simpler listener registration
@@ -96,5 +98,14 @@ public class Main extends JavaPlugin {
 
     public ILockManager getLockManager() {
         return this.lockManager;
+    }
+
+    // Register a new LockManager type
+    public void registerCustomLockManager(String key, Class<? extends ILockManager> managerClass) {
+        if (this.lockManagerTypes.containsKey(key)) {
+            throw new IllegalArgumentException(key + " is already taken!");
+        }
+
+        this.lockManagerTypes.put(key, managerClass);
     }
 }

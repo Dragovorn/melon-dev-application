@@ -9,8 +9,8 @@ public class Database {
 
     private Connection connection;
 
-    public Database(String ip, int port, String database, String user, String pass) throws SQLException {
-        this.connection = DriverManager.getConnection("jdbc:mysql://" + ip + ":" + port + "/" + database, user, pass);
+    public Database(String ip, int port, String user, String pass) throws SQLException {
+        this.connection = DriverManager.getConnection("jdbc:mysql://" + ip + ":" + port + "/", user, pass);
     }
 
     public Statement createStatement() throws SQLException {

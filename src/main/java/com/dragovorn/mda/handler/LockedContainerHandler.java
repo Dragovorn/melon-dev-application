@@ -26,15 +26,15 @@ public class LockedContainerHandler implements Listener {
 
         Block block = event.getClickedBlock();
 
-        if (!isLockable(block)) { // Make sure a block that holds an inventory or is openable is being interacted with
-            return; // Make sure block either has an inventory or is an openable
+        if (!isLockable(block)) { // Make sure block being interacted with is lockable
+            return;
         }
 
-        if (!Main.getInstance().getLockManager().isLocked(block)) {
-            return; // Block isn't locked
+        if (!Main.getInstance().getLockManager().isLocked(block)) { // Check if block isn't locked
+            return;
         }
 
-        locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(block), event);
+        handle(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(block), event);
     }
 
     @EventHandler
@@ -49,7 +49,7 @@ public class LockedContainerHandler implements Listener {
             return;
         }
 
-        locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(block), event);
+        handle(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(block), event);
     }
 
     @EventHandler
@@ -68,9 +68,12 @@ public class LockedContainerHandler implements Listener {
         }
     }
 
-    private void locked(Player offender, OfflinePlayer owner, Cancellable event) {
+    // This handles basic logic for breaking and interacting
+    private void handle(Player offender, OfflinePlayer owner, Cancellable event) {
+        // Run slightly different logic if it's a block break event
         if (event instanceof BlockBreakEvent) {
             if (offender.hasPermission("lock.bypass") || offender.getUniqueId().equals(owner.getUniqueId())) {
+                // We don't need to check & unlock adjacent blocks because they still exist, this one doesn't
                 Main.getInstance().getLockManager().unlock(((BlockBreakEvent) event).getBlock());
                 offender.sendMessage(colourize("&aYou broke a locked block! It's been unlocked automatically!"));
 
@@ -83,6 +86,7 @@ public class LockedContainerHandler implements Listener {
             }
         }
 
+        // The block is locked, cancel the event
         offender.sendMessage(colourize("&cThis block is locked by: &e" + owner.getName() + "&c!"));
         event.setCancelled(true);
     }

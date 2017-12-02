@@ -18,10 +18,14 @@ import java.sql.Statement;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static com.dragovorn.mda.util.GeneralHelpers.generateKey;
 
-
+/**
+ * Implementation of {@link SimpleLockManager} that uses sql as it's
+ * data storage method.
+ */
 public class SQLLockManager extends SimpleLockManager {
 
     private static final ExecutorService UPDATE_POOL = Executors.newFixedThreadPool(5, new ThreadFactoryBuilder().setNameFormat("update-%d").build());
@@ -35,12 +39,14 @@ public class SQLLockManager extends SimpleLockManager {
         FileConfiguration config = Main.getInstance().getConfig();
 
         try {
-            this.database = new Database(config.getString("ip"), config.getInt("port"), "", config.getString("username"), config.getString("password"));
+            // Connect to the database the user identified
+            this.database = new Database(config.getString("ip"), config.getInt("port"), config.getString("username"), config.getString("password"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         try {
+            // Run some setup sql commands
             Statement statement = this.database.createStatement();
 
             statement.execute("CREATE DATABASE IF NOT EXISTS " + config.getString("database"));
@@ -52,6 +58,7 @@ public class SQLLockManager extends SimpleLockManager {
         }
 
         try {
+            // Populate our back-end Map with the pre-existing data in the database
             Statement statement = this.database.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM data");
 
@@ -65,26 +72,32 @@ public class SQLLockManager extends SimpleLockManager {
             e.printStackTrace();
         }
 
+        // Transfer 'legacy' data to our database
         if (FileLockManager.DATA.exists()) {
             Main.getInstance().getLogger().info("Detected old data.json! Transferring data over...");
 
             try {
+                // Read our JSON
                 JsonArray file = FileLockManager.GSON.fromJson(new FileReader(FileLockManager.DATA), JsonArray.class);
 
+                // Populate
                 file.forEach(element -> {
                     JsonObject object = element.getAsJsonObject();
 
                     String key = object.get("key").getAsString();
                     UUID owner = UUID.fromString(object.get("owner").getAsString());
 
+                    // Trust pre-existing locks in the database > locks in the 'legacy' file
                     if (this.data.containsKey(key)) {
                         Main.getInstance().getLogger().info("Collision detected! Trusting pre-existing MySQL data...");
                     } else {
                         this.data.put(key, owner);
+                        // Post update to our async database updater
                         UPDATE_POOL.execute(new UpdateRunnable("INSERT INTO data VALUES ('" + key + "', '" + owner.toString() + "')"));
                     }
                 });
 
+                // Rename our file to prevent reading it again on next startup
                 FileLockManager.DATA.renameTo(new File(Main.getInstance().getDataFolder(), "data.json.old"));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -94,14 +107,22 @@ public class SQLLockManager extends SimpleLockManager {
 
     @Override
     public void close() {
+        try {
+            UPDATE_POOL.shutdown();
+            UPDATE_POOL.awaitTermination(100, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         this.database.close();
     }
 
     @Override
     public boolean unlock(Block block) {
+        // Make sure other method gets called and store its result
         boolean unlock = super.unlock(block);
 
         if (unlock) {
+            // Post update to our async database updater
             UPDATE_POOL.execute(new UpdateRunnable("DELETE FROM data WHERE blockKey='" + generateKey(block) + "'"));
         }
 
@@ -110,9 +131,11 @@ public class SQLLockManager extends SimpleLockManager {
 
     @Override
     public boolean lock(Player owner, Block block) {
+        // Make sure other method gets called and store its result
         boolean lock = super.lock(owner, block);
 
         if (lock) {
+            // Post update to our async database updater
             UPDATE_POOL.execute(new UpdateRunnable("INSERT INTO data VALUES ('" + generateKey(block) + "', '" + owner.getUniqueId().toString() + "')"));
         }
 

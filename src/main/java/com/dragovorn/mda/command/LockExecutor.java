@@ -11,9 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Set;
 
-import static com.dragovorn.mda.handler.LockedContainerHandler.getAdjacentLocked;
-import static com.dragovorn.mda.handler.LockedContainerHandler.isLockable;
-import static com.dragovorn.mda.util.ChatHelper.colourize;
+import static com.dragovorn.mda.util.GeneralHelpers.*;
 
 public class LockExecutor implements CommandExecutor {
 
@@ -29,16 +27,15 @@ public class LockExecutor implements CommandExecutor {
         Block target = player.getTargetBlock((Set<Material>) null, 5);
 
         if (isLockable(target)) {
-            Block lock = getAdjacentLocked(target);
+            Block extra = getAdjacent(target, false);
 
-            if (lock == null) {
-                lock = target;
-            }
-
-            if (Main.getInstance().getLockManager().lock(player, lock)) {
+            if (Main.getInstance().getLockManager().lock(player, target)) {
+                if (extra != null) {
+                    Main.getInstance().getLockManager().lock(player, extra);
+                }
                 player.sendMessage(colourize("&aSuccessfully locked block!"));
             } else {
-                OfflinePlayer owner = Main.getInstance().getLockManager().getWhoLocked(lock);
+                OfflinePlayer owner = Main.getInstance().getLockManager().getWhoLocked(target);
 
                 if (owner.getUniqueId().equals(player.getUniqueId())) {
                     player.sendMessage(colourize("&cYou've already locked that block!"));

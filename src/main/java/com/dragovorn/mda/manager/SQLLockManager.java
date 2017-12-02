@@ -9,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.sql.ResultSet;
@@ -18,7 +19,8 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.dragovorn.mda.util.KeyHelper.generateKey;
+import static com.dragovorn.mda.util.GeneralHelpers.generateKey;
+
 
 public class SQLLockManager extends SimpleLockManager {
 
@@ -83,7 +85,7 @@ public class SQLLockManager extends SimpleLockManager {
                     }
                 });
 
-                FileLockManager.DATA.delete();
+                FileLockManager.DATA.renameTo(new File(Main.getInstance().getDataFolder(), "data.json.old"));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }

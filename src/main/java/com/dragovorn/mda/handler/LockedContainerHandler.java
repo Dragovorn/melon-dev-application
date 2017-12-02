@@ -3,28 +3,20 @@ package com.dragovorn.mda.handler;
 import com.dragovorn.mda.Main;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.material.Door;
-import org.bukkit.material.Openable;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static com.dragovorn.mda.util.ChatHelper.colourize;
+import static com.dragovorn.mda.util.GeneralHelpers.colourize;
+import static com.dragovorn.mda.util.GeneralHelpers.getAdjacent;
+import static com.dragovorn.mda.util.GeneralHelpers.isLockable;
 
 public class LockedContainerHandler implements Listener {
-
-    private static final List<BlockFace> CHEST_FACES = Arrays.asList(BlockFace.SOUTH, BlockFace.NORTH, BlockFace.EAST, BlockFace.WEST);
-    private static final List<BlockFace> DOOR_FACES = Arrays.asList(BlockFace.DOWN, BlockFace.UP);
 
     @EventHandler
     public void checkInteraction(PlayerInteractEvent event) {
@@ -39,14 +31,7 @@ public class LockedContainerHandler implements Listener {
         }
 
         if (!Main.getInstance().getLockManager().isLocked(block)) {
-            Block relativeBlock = getAdjacentLocked(block);
-
-            if (relativeBlock != null) {
-                Main.getInstance().getLockManager().lock(event.getPlayer(), block);
-                locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(relativeBlock), event);
-            }
-
-            return;
+            return; // Block isn't locked
         }
 
         locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(block), event);
@@ -61,47 +46,26 @@ public class LockedContainerHandler implements Listener {
         }
 
         if (!Main.getInstance().getLockManager().isLocked(block)) {
-            Block relativeBlock = getAdjacentLocked(block);
-
-            if (relativeBlock != null) {
-                Main.getInstance().getLockManager().lock(event.getPlayer(), block);
-                locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(relativeBlock), event);
-            }
-
             return;
         }
 
         locked(event.getPlayer(), Main.getInstance().getLockManager().getWhoLocked(block), event);
     }
 
-    public static Block getAdjacentLocked(Block block) {
-        if (block.getState() instanceof Chest) {
-            for (BlockFace face : CHEST_FACES) {
-                Block relativeBlock = block.getRelative(face);
+    @EventHandler
+    public void registerNewLocks(BlockPlaceEvent event) {
+        Block block = event.getBlock();
 
-                if (relativeBlock.getState() instanceof Chest) {
-                    if (Main.getInstance().getLockManager().isLocked(relativeBlock)) {
-                        return relativeBlock;
-                    }
-                }
-            }
-        } else if (block.getState().getData() instanceof Door) {
-            for (BlockFace face : DOOR_FACES) {
-                Block relativeBlock = block.getRelative(face);
-
-                if (relativeBlock.getState().getData() instanceof Door) {
-                    if (Main.getInstance().getLockManager().isLocked(relativeBlock)) {
-                        return relativeBlock;
-                    }
-                }
-            }
+        if (!isLockable(block)) {
+            return;
         }
 
-        return null;
-    }
+        Block locked = getAdjacent(block, true);
 
-    public static boolean isLockable(Block block) {
-        return block.getState() instanceof InventoryHolder || block.getState().getData() instanceof Openable;
+        if (locked != null) {
+            Main.getInstance().getLockManager().lock(event.getPlayer(), block);
+            event.getPlayer().sendMessage(colourize("&aSince you made a double chest with a locked chest the chest you placed has been automatically locked!"));
+        }
     }
 
     private void locked(Player offender, OfflinePlayer owner, Cancellable event) {

@@ -11,9 +11,7 @@ import org.bukkit.entity.Player;
 
 import java.util.Set;
 
-import static com.dragovorn.mda.handler.LockedContainerHandler.getAdjacentLocked;
-import static com.dragovorn.mda.handler.LockedContainerHandler.isLockable;
-import static com.dragovorn.mda.util.ChatHelper.colourize;
+import static com.dragovorn.mda.util.GeneralHelpers.*;
 
 public class UnlockExecutor implements CommandExecutor {
 
@@ -29,19 +27,15 @@ public class UnlockExecutor implements CommandExecutor {
         Block target = player.getTargetBlock((Set<Material>) null, 5);
 
         if (isLockable(target)) {
-            Block block = getAdjacentLocked(target);
+            Block extra = getAdjacent(target, true);
 
-            if (block == null) {
-                block = target;
-            }
-
-            OfflinePlayer owner = Main.getInstance().getLockManager().getWhoLocked(block);
+            OfflinePlayer owner = Main.getInstance().getLockManager().getWhoLocked(target);
 
             if (owner.getUniqueId().equals(player.getUniqueId())) {
-                unlock(block, player);
+                unlock(target, extra, player);
             } else {
                 if (player.hasPermission("lock.bypass")) {
-                    unlock(block, player);
+                    unlock(target, extra, player);
                 } else {
                     player.sendMessage(colourize("&cYou cannot unlock that block because it's owner is: &e" + owner.getName()));
                 }
@@ -53,8 +47,12 @@ public class UnlockExecutor implements CommandExecutor {
         return true;
     }
 
-    private void unlock(Block block, Player player) {
+    private void unlock(Block block, Block extra, Player player) {
         if (Main.getInstance().getLockManager().unlock(block)) {
+            if (extra != null) {
+                Main.getInstance().getLockManager().unlock(extra);
+            }
+
             player.sendMessage(colourize("&aYou unlocked this block!"));
         } else {
             player.sendMessage(colourize("&cThat block isn't locked!"));

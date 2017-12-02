@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.dragovorn.mda.util.KeyHelper.generateKey;
+import static com.dragovorn.mda.util.GeneralHelpers.generateKey;
 import static org.bukkit.Bukkit.getOfflinePlayer;
 
 public abstract class SimpleLockManager implements ILockManager {

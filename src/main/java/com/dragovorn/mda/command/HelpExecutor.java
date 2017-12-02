@@ -4,7 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import static com.dragovorn.mda.util.ChatHelper.colourize;
+import static com.dragovorn.mda.util.GeneralHelpers.colourize;
 
 public class HelpExecutor implements CommandExecutor {
 
